@@ -1,7 +1,7 @@
 # BGLunarDatePicker
 A date time picker which can choose date in chinese calendar
 
-![ScreenShot](https://raw.github.com/guoxbin/BGLunarDatePicker/master/demo.jpg =320)
+![ScreenShot](https://raw.github.com/guoxbin/BGLunarDatePicker/master/demo.jpg =320x)
 
 ## Feature
 1. setting min date

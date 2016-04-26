@@ -8,8 +8,9 @@
 
 #import "BGLunarDatePicker.h"
 
-const NSInteger Repeat = 100;
-const NSInteger NumberOfComponents = 7;
+const NSInteger Repeat = 10;
+const NSInteger RepeatYear = 4;
+const NSInteger NumberOfComponents = 3;
 
 const NSInteger ComponentYear = 0;
 const NSInteger ComponentMonth = 1;
@@ -114,17 +115,16 @@ const unsigned UnitFlags = NSCalendarUnitEra | NSCalendarUnitYear | NSCalendarUn
     self.delegate = self;
     self.dataSource = self;
     
+    [self refreshYearList];
+    [self reloadComponent:ComponentYear];
+    
     [self render:false];
     
 }
 
 - (void)render:(bool)animated{
     
-    [self refreshYearList];
-    [self reloadComponent:ComponentYear];
-    
     [self selectRow:[self rowForYear] inComponent:ComponentYear animated:animated];
-    
     
     [self refreshMonthList];
     [self reloadComponent:ComponentMonth];
@@ -154,7 +154,7 @@ const unsigned UnitFlags = NSCalendarUnitEra | NSCalendarUnitYear | NSCalendarUn
         index++;
     }
     
-    NSInteger row = index+(self.yearComponentsList.count*Repeat/2);
+    NSInteger row = index+(self.yearComponentsList.count*RepeatYear/2);
     
     return row;
 }
@@ -166,7 +166,7 @@ const unsigned UnitFlags = NSCalendarUnitEra | NSCalendarUnitYear | NSCalendarUn
     NSUInteger index = 0;
     
     for (NSDateComponents *itComponents in self.monthComponentsList) {
-        if(itComponents.month==components.month){
+        if(itComponents.month==components.month && itComponents.isLeapMonth==components.isLeapMonth){
             break;
         }
         
@@ -207,7 +207,7 @@ const unsigned UnitFlags = NSCalendarUnitEra | NSCalendarUnitYear | NSCalendarUn
     
     switch (component) {
         case ComponentYear:
-            numberOfRows = self.yearComponentsList.count * Repeat;
+            numberOfRows = self.yearComponentsList.count * RepeatYear;
             break;
             
         case ComponentMonth:
@@ -227,11 +227,15 @@ const unsigned UnitFlags = NSCalendarUnitEra | NSCalendarUnitYear | NSCalendarUn
 }
 
 - (CGFloat)pickerView:(UIPickerView *)pickerView widthForComponent:(NSInteger)component{
-    CGFloat width = 88;
+    CGFloat width = 66;
     switch (component) {
             
         case ComponentYear:
             width = 120;
+            break;
+        
+        case ComponentMonth:
+            width = 88;
             break;
             
         default:
@@ -365,11 +369,9 @@ const unsigned UnitFlags = NSCalendarUnitEra | NSCalendarUnitYear | NSCalendarUn
 
 - (NSDate *)getTrimedDate:(NSDate *)date{
     
-    unsigned unitFlags = NSCalendarUnitYear | NSCalendarUnitMonth |  NSCalendarUnitDay;
-    
     NSCalendar *calendar = [[NSCalendar alloc] initWithCalendarIdentifier:NSCalendarIdentifierGregorian];
     
-    NSDateComponents *comps = [calendar components:unitFlags fromDate:date];
+    NSDateComponents *comps = [calendar components:UnitFlags fromDate:date];
     comps.hour = 0;
     comps.minute = 0;
     comps.second = 0;
@@ -384,28 +386,19 @@ const unsigned UnitFlags = NSCalendarUnitEra | NSCalendarUnitYear | NSCalendarUn
     
     NSDateComponents *lunarComps = [self.lunarCalendar components:UnitFlags fromDate:date];
     
-    NSCalendar *calendar = [[NSCalendar alloc] initWithCalendarIdentifier:NSCalendarIdentifierGregorian];
-    NSDateComponents *comps = [calendar components:UnitFlags fromDate:date];
-    
     return [self yearNameForComponents:lunarComps];
 }
 
 - (NSString *)monthNameForDate:(NSDate *)date{
     
-    unsigned unitFlags = NSCalendarUnitYear | NSCalendarUnitMonth |  NSCalendarUnitDay;
-    NSCalendar *lunarCalendar = [[NSCalendar alloc] initWithCalendarIdentifier:NSCalendarIdentifierChinese];
-    
-    NSDateComponents *lunarComps = [lunarCalendar components:unitFlags fromDate:date];
+    NSDateComponents *lunarComps = [self.lunarCalendar components:UnitFlags fromDate:date];
     
     return [self monthNameForComponents:lunarComps];
 }
 
 - (NSString *)dayNameForDate:(NSDate *)date{
     
-    unsigned unitFlags = NSCalendarUnitYear | NSCalendarUnitMonth |  NSCalendarUnitDay;
-    NSCalendar *lunarCalendar = [[NSCalendar alloc] initWithCalendarIdentifier:NSCalendarIdentifierChinese];
-    
-    NSDateComponents *lunarComps = [lunarCalendar components:unitFlags fromDate:date];
+    NSDateComponents *lunarComps = [self.lunarCalendar components:UnitFlags fromDate:date];
     
     return [self dayNameForComponents:lunarComps];
 }
